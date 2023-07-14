@@ -13,7 +13,6 @@ public static class Noise {
 
 		float maxPossibleHeight = 0;
 		float amplitude = 1;
-		float frequency = 1;
 
 		for (int i = 0; i < octaves; i++) {
 			float offsetX = prng.Next (-100000, 100000) + offset.x;
@@ -39,7 +38,7 @@ public static class Noise {
 			for (int x = 0; x < mapWidth; x++) {
 
 				amplitude = 1;
-				frequency = 1;
+				float frequency = 1;
 				float noiseHeight = 0;
 
 				for (int i = 0; i < octaves; i++) {
@@ -61,18 +60,21 @@ public static class Noise {
 				noiseMap [x, y] = noiseHeight;
 			}
 		}
-
-		for (int y = 0; y < mapHeight; y++) {
-			for (int x = 0; x < mapWidth; x++) {
-				if (normalizeMode == NormalizeMode.Local) {
-					noiseMap [x, y] = Mathf.InverseLerp (minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap [x, y]);
-				} else {
-					float normalizedHeight = (noiseMap [x, y] + 1) / (maxPossibleHeight/0.9f);
+		
+		if (normalizeMode == NormalizeMode.Local) {
+			for (int y = 0; y < mapHeight; y++) {
+				for (int x = 0; x < mapWidth; x++) {
+					noiseMap[x, y] = Mathf.InverseLerp(minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap[x, y]);
+				}
+			}
+		} else if (normalizeMode == NormalizeMode.Global) {
+			for (int y = 0; y < mapHeight; y++) {
+				for (int x = 0; x < mapWidth; x++) {
+					float normalizedHeight = (noiseMap [x, y] + 1) / (maxPossibleHeight * 0.9f);
 					noiseMap [x, y] = Mathf.Clamp(normalizedHeight,0, int.MaxValue);
 				}
 			}
 		}
-
 		return noiseMap;
 	}
 
